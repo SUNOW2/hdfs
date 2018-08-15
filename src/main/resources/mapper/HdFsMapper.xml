@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.software.hdfs.dao.HdFsMapper">
+
+    <resultMap id="HdFsCondition" type="com.software.hdfs.domain.HdFsCondition">
+        <result column="hdfs_no" property="hdFsNo" jdbcType="VARCHAR"/>
+        <result column="old_name" property="oldName" jdbcType="VARCHAR"/>
+        <result column="new_name" property="newName" jdbcType="VARCHAR"/>
+        <result column="is_del" property="isDel" jdbcType="INTEGER"/>
+        <result column="hdfs_date" property="date" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="hdFsSql">
+        h.hdfs_no,
+        h.old_name,
+        h.new_name,
+        h.is_del,
+        h.hdfs_date
+    </sql>
+
+    <sql id="whereSql">
+        <if test="hdFsNo != null and hdFsNo != ''">
+            AND h.hdfs_no = #{hdFsNo, jdbcType = VARCHAR}
+        </if>
+        <if test="oldName != null and oldName != ''">
+            AND h.old_name = #{oldName, jdbcType = VARCHAR}
+        </if>
+        <if test="newName != null and newName != ''">
+            AND h.new_name = #{newName, jdbcType = VARCHAR}
+        </if>
+        <if test="isDel != null">
+            AND h.is_del = #{isDel, jdbcType = INTEGER}
+        </if>
+        <if test="date != null">
+            AND h.hdfs_date = #{date, jdbcType = TIMESTAMP}
+        </if>
+    </sql>
+
+    <!-- 新增记录 -->
+    <insert id="saveRecord">
+        INSERT INTO
+        hdfs_file (
+        <if test="hdFsNo != null and hdFsNo != ''">
+            hdfs_no
+        </if>
+        <if test="oldName != null and oldName != ''">
+            ,old_name
+        </if>
+        <if test="newName != null and newName != ''">
+            ,new_name
+        </if>
+        <if test="isDel != null">
+            ,is_del
+        </if>
+        <if test="date != null">
+            ,hdfs_date
+        </if>)
+        VALUES (
+        <if test="hdFsNo != null and hdFsNo != ''">
+            #{hdFsNo, jdbcType = VARCHAR}
+        </if>
+        <if test="oldName != null and oldName != ''">
+            ,#{oldName, jdbcType = VARCHAR}
+        </if>
+        <if test="newName != null and newName != ''">
+            ,#{newName, jdbcType = VARCHAR}
+        </if>
+        <if test="isDel != null">
+            ,#{isDel, jdbcType = INTEGER}
+        </if>
+        <if test="date != null">
+            ,#{date, jdbcType = TIMESTAMP}
+        </if>)
+    </insert>
+
+    <!-- 更新，删除记录 -->
+    <update id="updateRecord" parameterType="com.software.hdfs.domain.HdFsCondition">
+        UPDATE hdfs_file h
+        <set>
+            <if test="oldName != null and oldName != ''">
+                h.old_name = #{oldName, jdbcType = VARCHAR},
+            </if>
+            <if test="newName != null and newName != ''">
+                h.new_name = #{newName, jdbcType = VARCHAR},
+            </if>
+            <if test="isDel != null">
+                h.is_del = #{isDel, jdbcType = INTEGER},
+            </if>
+        </set>
+        WHERE 1 = 1
+        AND h.hdfs_no = #{hdFsNo, jdbcType = VARCHAR}
+    </update>
+
+    <!-- 批量更新 -->
+    <update id="updateBatch" parameterType="java.util.List">
+        UPDATE hdfs_file h
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="old_name = case " suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.oldName != null" >
+                        WHEN h.hdfs_no = #{item.hdFsNo, jdbcType = VARCHAR} THEN #{item.oldName, jdbcType = VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="new_name = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.newName != null">
+                        WHEN h.hdfs_no = #{item.hdFsNo, jdbcType = VARCHAR} THEN #{item.newName, jdbcType = VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="is_del = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.isDel != null">
+                        WHEN h.hdfs_no = #{item.hdFsNo, jdbcType = VARCHAR} THEN #{item.isDel, jdbcType = INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        WHERE 1 = 1
+        AND
+        <foreach collection="list" separator="OR" item="item">
+            h.hdfs_no = #{item.hdFsNo, jdbcType = VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 查询记录 -->
+    <select id="selectRecord" parameterType="com.software.hdfs.domain.HdFsCondition" resultMap="HdFsCondition" >
+        SELECT
+        <include refid="hdFsSql" />
+        FROM hdfs_file h
+        WHERE 1 = 1
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 根据newName，批量查询 -->
+    <select id="queryBatch" resultMap="HdFsCondition" parameterType="java.util.List">
+        SELECT
+        <include refid="hdFsSql" />
+        FROM hdfs_file h
+        WHERE
+        <foreach collection="list" item="idItem" open="(" close=")" separator="OR">
+            h.new_name = #{idItem, jdbcType = VARCHAR}
+        </foreach>
+    </select>
+
+    <!-- 不分页查询 -->
+    <select id="selectListRecord" resultMap="HdFsCondition">
+        SELECT
+        <include refid="hdFsSql" />
+        FROM hdfs_file h
+        WHERE 1 = 1
+        <include refid="whereSql"/>
+    </select>
+
+    <!-- 创建上传文件的编号 -->
+    <select id="createNo" resultType="String">
+        SELECT concat('P',date_format(now(), '%y%m%d'),LPAD(nextval('hdfs_file'),8,0)) from dual
+    </select>
+
+</mapper>

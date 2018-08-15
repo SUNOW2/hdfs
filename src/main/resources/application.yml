@@ -1,0 +1,38 @@
+hdfs:
+  host: hdfs://172.22.0.4:9000
+  user: root
+  dirone:
+    tmp: /home/tmp/
+    fin: /home/fin/
+
+server:
+  port: 8888
+  host: http://192.168.1.105:8888/hdfs/downloadFile?filePath=
+
+spring:
+  datasource:
+    url: jdbc:mysql://223.2.197.241:3306/hdfs?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
+    username: root
+    password: nsi-dev
+    driver-class-name: com.mysql.jdbc.Driver
+  application:
+    name: hdfs
+  servlet:
+    multipart:
+      maxFileSize: 10MB
+      maxRequestSize: 100MB
+      enabled: false
+  jackson:
+    timeZone: GMT+8
+
+# 日志信息
+logging:
+  file: ./spring.log
+  level:
+    com:
+      software: DEBUG
+
+# mybatis配置
+mybatis:
+  typeAliasesPackage: com.software.hdfs.domain
+  mapperLocations: classpath:mapper/*.xml
