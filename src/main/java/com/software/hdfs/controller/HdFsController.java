@@ -9,8 +9,6 @@ import com.software.hdfs.service.FineUploaderService;
 import com.software.hdfs.service.HdFsService;
 import com.software.hdfs.utils.*;
 import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -91,8 +89,7 @@ public class HdFsController extends BaseController {
     @RequestMapping(value = "/downloadFile", method = RequestMethod.GET)
     public ResponseEntity downloadFile(String filePath, HttpServletRequest req, HttpServletResponse res) throws IOException {
 
-        FSDataInputStream fds = hdFsConnection.getFDSConnection(filePath);
-        hdFsOperation.downloadFile(fds, req, res);
+        hdFsOperation.downloadFile(filePath, req, res);
 
         return this.getSuccessResult("下载文件成功");
     }
@@ -105,18 +102,14 @@ public class HdFsController extends BaseController {
      */
     @RequestMapping(value = "/deleteFile", method = RequestMethod.POST)
     public ResponseEntity deleteFile(@Valid DeleteForm form) {
-        FileSystem fs = hdFsConnection.getFSConnection();
         HdFsCondition condition = new HdFsCondition();
         condition.setNewName(form.getFilePath());
         condition.setHdFsNo(form.getHdFsNo());
         condition.setIsDel(0);
 
-        try {
-            fs.delete(new Path(form.getFilePath()), true);
-            hdFsService.updateRecord(condition);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        hdFsOperation.delete(form.getFilePath());
+        hdFsService.updateRecord(condition);
+
         return this.getSuccessResult("删除文件成功");
     }
 
@@ -131,6 +124,7 @@ public class HdFsController extends BaseController {
         HdFsCondition condition = CopyUtils.transfer(form, HdFsCondition.class);
 
         hdFsService.updateRecord(condition);
+
         return this.getSuccessResult("更新文件信息成功");
     }
 
@@ -174,6 +168,7 @@ public class HdFsController extends BaseController {
     public ResponseEntity fileInFolder(String srcPath) {
 
         List<HdFsCondition> list = hdFsOperation.getFileInFolder(srcPath);
+
         return this.getSuccessResult("获取文件夹内数据成功", list);
     }
 }

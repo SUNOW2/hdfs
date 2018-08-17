@@ -1,17 +1,39 @@
+server:
+  port: 8888
+  host: http://192.168.1.105:8888/hdfs/downloadFile?filePath=
+  mysql:
+    ip: 223.2.197.241
+  hdfs:
+    nn1: 172.22.0.3:9000
+    nn2: 172.22.0.4:9000
+
 hdfs:
-  host: hdfs://172.22.0.4:9000
   user: root
   dirone:
     tmp: /home/tmp/
     fin: /home/fin/
-
-server:
-  port: 8888
-  host: http://192.168.1.105:8888/hdfs/downloadFile?filePath=
-
+  fs:
+    defaultFS: hdfs://ns1
+    hdfs:
+      impl:
+  dfs:
+    nameservices: ns1
+    ha:
+      namenodes:
+        ns1: nn1,nn2
+    namenode:
+      rpc-address:
+        ns1:
+          nn1: ${server.hdfs.nn1}
+          nn2: ${server.hdfs.nn2}
+    client:
+      failover:
+        proxy:
+          provider:
+            ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
 spring:
   datasource:
-    url: jdbc:mysql://223.2.197.241:3306/hdfs?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
+    url: jdbc:mysql://${server.mysql.ip}:3306/hdfs?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
     username: root
     password: nsi-dev
     driver-class-name: com.mysql.jdbc.Driver

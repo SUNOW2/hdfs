@@ -67,6 +67,8 @@ public class HdFsOperation {
             hdFsMapper.saveRecord(hdFsCondition);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            close(fs);
         }
 
         String uri = serverHost + fileName;
@@ -88,13 +90,15 @@ public class HdFsOperation {
 
             if (fs.exists(path)) {
                 for (FileStatus status : fs.listStatus(path)) {
-                    list.add(status.getPath().toString().split("9000")[1]);
+                    list.add(status.getPath().toString().split("ns1")[1]);
                 }
             }
             List<HdFsCondition> HdList = hdFsMapper.queryBatch(list);
             return HdList;
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            close(fs);
         }
 
         return null;
@@ -117,6 +121,8 @@ public class HdFsOperation {
             fs.mkdirs(path);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            close(fs);
         }
         return true;
     }
@@ -124,12 +130,15 @@ public class HdFsOperation {
     /**
      * 从HdFs文件系统下载文件至发送请求的用户
      *
-     * @param fds
+     * @param srcPath
      * @param request
      * @param response
      * @throws IOException
      */
-    public void downloadFile(FSDataInputStream fds, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void downloadFile(String srcPath, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+
+        FSDataInputStream fds = hdFsConnection.getFDSConnection(srcPath);
+
         // 请求参数
         String queryString = request.getQueryString();
 
@@ -164,6 +173,56 @@ public class HdFsOperation {
             fds.close();
         } catch (IOException e) {
             System.out.println("用户停止下载" + fileName + "文件");
+        }
+    }
+
+    /**
+     * 删除文件或文件夹
+     *
+     * @param srcPath
+     */
+    public void delete(String srcPath) {
+        FileSystem fs = hdFsConnection.getFSConnection();
+
+        try {
+            fs.delete(new Path(srcPath), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(fs);
+        }
+    }
+
+    /**
+     * 获取文件大小
+     * @param srcPath
+     * @return
+     */
+    public long getFileSize(String srcPath) {
+        long size = 1L;
+        FileSystem fs = hdFsConnection.getFSConnection();
+
+        try {
+            size = fs.getContentSummary(new Path(srcPath)).getLength();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(fs);
+        }
+
+        return size;
+    }
+
+    /**
+     * 关闭FileSystem连接
+     *
+     * @param fs
+     */
+    public void close(FileSystem fs) {
+        try {
+            fs.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

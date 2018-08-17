@@ -20,13 +20,44 @@ import java.net.URI;
 @Component
 public class HdFsConnection {
 
-    @Value("${hdfs.host}")
-    private String host;
-
     @Value("${hdfs.user}")
     private String user;
 
-    private Configuration con = new Configuration();
+    @Value("${hdfs.fs.defaultFS}")
+    private String host;
+
+    @Value("${hdfs.dfs.nameservices}")
+    private String nameServices;
+
+    @Value("${hdfs.dfs.ha.namenodes.ns1}")
+    private String nameNodes;
+
+    @Value("${hdfs.dfs.namenode.rpc-address.ns1.nn1}")
+    private String nameNodeOne;
+
+    @Value("${hdfs.dfs.namenode.rpc-address.ns1.nn2}")
+    private String nameNodeTwo;
+
+    @Value("${hdfs.dfs.client.failover.proxy.provider.ns1}")
+    private String proxyProvider;
+
+    /**
+     * 初始化hdfs的配置
+     *
+     * @return
+     */
+    public Configuration init() {
+        Configuration con = new Configuration();
+
+        con.set("fs.defaultFS", host);
+        con.set("dfs.nameservices", nameServices);
+        con.set("dfs.ha.namenodes.ns1", nameNodes);
+        con.set("dfs.namenode.rpc-address.ns1.nn1", nameNodeOne);
+        con.set("dfs.namenode.rpc-address.ns1.nn2", nameNodeTwo);
+        con.set("dfs.client.failover.proxy.provider.ns1", proxyProvider);
+
+        return con;
+    }
 
     /**
      * 获取一个FileSystem实例
@@ -34,13 +65,15 @@ public class HdFsConnection {
      * @param path
      * @return
      */
-    public FileSystem getFSConnection(String path) {
+    public FileSystem getFSConnection(String path){
 
         String ResourcePath = host + path;
         FileSystem fs = null;
+        Configuration con = init();
 
         try {
             fs = FileSystem.get(new URI(ResourcePath), con, user);
+        fs = FileSystem.get(new URI(path), con, user);
         } catch (Exception e) {
             System.out.println("连接hdfs文件系统失败");
             e.printStackTrace();
@@ -58,6 +91,7 @@ public class HdFsConnection {
 
         String ResourcePath = host;
         FileSystem fs = null;
+        Configuration con = init();
 
         try {
             fs = FileSystem.get(new URI(ResourcePath), con, user);
@@ -80,6 +114,7 @@ public class HdFsConnection {
         String ResourcePath = host + path;
         FileSystem fs;
         FSDataInputStream fds = null;
+        Configuration con = init();
 
         System.out.println("ResourcePath = " + ResourcePath);
 
