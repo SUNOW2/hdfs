@@ -45,7 +45,7 @@ public class HdFsController extends BaseController {
     private HdFsOperation hdFsOperation;
 
     /**
-     * 描述：根据文件在hdfs文件系统上所处路径查询文件内容
+     * 描述：根据文件在HdFs文件系统上所处路径查询文件内容
      *
      * @param filePath
      * @return
@@ -78,7 +78,7 @@ public class HdFsController extends BaseController {
     }
 
     /**
-     * 描述：从hdfs文件系统上下载文件
+     * 描述：从HdFs文件系统上下载文件
      *
      * @param filePath
      * @param req
@@ -95,7 +95,7 @@ public class HdFsController extends BaseController {
     }
 
     /**
-     * 描述：从hdfs文件系统上删除文件
+     * 描述：从HdFs文件系统上删除文件
      *
      * @param form
      * @return
@@ -170,5 +170,14 @@ public class HdFsController extends BaseController {
         List<HdFsCondition> list = hdFsOperation.getFileInFolder(srcPath);
 
         return this.getSuccessResult("获取文件夹内数据成功", list);
+    }
+
+    @RequestMapping(value = "/test", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity test(String srcPath, String destPath,HttpServletResponse res) {
+//        hdFsOperation.decompress(srcPath, res);
+//        hdFsOperation.createFolder("/sunow/te");
+//        hdFsOperation.storeFolderFromOthers(srcPath, destPath);
+        hdFsOperation.fileRename(srcPath, destPath);
+        return this.getSuccessResult("解压缩成功");
     }
 }

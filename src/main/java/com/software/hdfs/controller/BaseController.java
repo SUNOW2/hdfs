@@ -3,6 +3,7 @@ package com.software.hdfs.controller;
 import com.software.hdfs.po.BaseQueryPo;
 import com.software.hdfs.utils.CentreCutPageResponse;
 import com.software.hdfs.utils.CentreListResponse;
+import com.software.hdfs.utils.EnumUtils;
 import com.software.hdfs.utils.ResponseEntity;
 
 import java.util.Collections;
@@ -20,12 +21,12 @@ public class BaseController {
     /**
      * 成功的Status Code
      */
-    private static final int RESCODE_OK = 200;
+    private static final int RESCODE_OK = EnumUtils.RESCODE_SUCCESS.getResCode();
 
     /**
      * 失败的Status Code
      */
-    private static final int RESCODE_FAIL = 201;
+    private static final int RESCODE_FAIL = EnumUtils.RESCODE_FAIL.getResCode();
 
     /**
      * 描述：获取成功信息

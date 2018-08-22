@@ -101,15 +101,14 @@ public class FineUploaderServiceImpl implements FineUploaderService {
                     handleDeleteFileRequest(uuid, resp);
                 } else {
                     writeFileForNonMultipartRequest(req, requestParser);
-//                    writeResponse(resp.getWriter(), requestParser.generateError() ? "Generated error" : null, isIframe, false, requestParser);
                 }
             }
         } catch (Exception e) {
             log.error("Problem handling upload request", e);
             if (e instanceof MergePartsException) {
-//                writeResponse(resp.getWriter(), e.getMessage(), isIframe, true, requestParser);
+
             } else {
-//                writeResponse(resp.getWriter(), e.getMessage(), isIframe, false, requestParser);
+
             }
         }
         return new FineUploadResults(true,requestParser.getOriginalFilename(), uri);
@@ -158,19 +157,19 @@ public class FineUploaderServiceImpl implements FineUploaderService {
                 for (File part : parts) {
                     mergeFiles(outputFile, part);
                 }
-//                验证文件上传成功与否
+                // 验证文件上传成功与否
                 assertCombinedFileIsVaid(requestParser.getTotalFileSize(), outputFile, requestParser.getUuid());
-//                删除上传目录中的所有碎片文件
+                // 删除上传目录中的所有碎片文件
                 deletePartitionFiles(dir, requestParser.getUuid());
-//                删除所有的临时文件，笔者加
+                // 删除所有的临时文件，笔者加
                 DirectoryUtils.deleteAllFileOperation(new File(TEMP_DIR));
 
-                uri = hdFsOperation.StoreInData(UPLOAD_DIR, requestParser);
+                uri = hdFsOperation.storeInData(UPLOAD_DIR, requestParser);
             }
         } else {
-//          未分片文件：直接上传到FastDFS文件系统，下载的时候，直接使用nginx进行反向代理
+            // 未分片文件：直接上传到FastDFS文件系统，下载的时候，直接使用nginx进行反向代理
             writeFile(requestParser.getUploadItem().getInputStream(), new File(dir, requestParser.getFilename()), null);
-            uri =  hdFsOperation.StoreInData(UPLOAD_DIR, requestParser);
+            uri =  hdFsOperation.storeInData(UPLOAD_DIR, requestParser);
         }
         return uri;
     }

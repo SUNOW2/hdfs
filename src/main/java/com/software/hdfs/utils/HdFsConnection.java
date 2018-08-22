@@ -1,5 +1,6 @@
 package com.software.hdfs.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -17,6 +18,7 @@ import java.net.URI;
  * @Date 2018/8/11 10:49
  * @Version 1.0
  */
+@Slf4j
 @Component
 public class HdFsConnection {
 
@@ -42,7 +44,7 @@ public class HdFsConnection {
     private String proxyProvider;
 
     /**
-     * 初始化hdfs的配置
+     * 初始化HdFs的配置Configuration
      *
      * @return
      */
@@ -67,15 +69,15 @@ public class HdFsConnection {
      */
     public FileSystem getFSConnection(String path){
 
-        String ResourcePath = host + path;
+        String resourcePath = host + path;
         FileSystem fs = null;
         Configuration con = init();
 
         try {
-            fs = FileSystem.get(new URI(ResourcePath), con, user);
+            fs = FileSystem.get(new URI(resourcePath), con, user);
         fs = FileSystem.get(new URI(path), con, user);
         } catch (Exception e) {
-            System.out.println("连接hdfs文件系统失败");
+            log.error("连接hdfs文件系统失败");
             e.printStackTrace();
         }
 
@@ -89,14 +91,14 @@ public class HdFsConnection {
      */
     public FileSystem getFSConnection() {
 
-        String ResourcePath = host;
+        String resourcePath = host;
         FileSystem fs = null;
         Configuration con = init();
 
         try {
-            fs = FileSystem.get(new URI(ResourcePath), con, user);
+            fs = FileSystem.get(new URI(resourcePath), con, user);
         } catch (Exception e) {
-            System.out.println("连接hdfs文件系统失败");
+            log.error("连接hdfs文件系统失败");
             e.printStackTrace();
         }
 
@@ -111,18 +113,16 @@ public class HdFsConnection {
      */
     public FSDataInputStream getFDSConnection(String path) {
 
-        String ResourcePath = host + path;
+        String resourcePath = host + path;
         FileSystem fs;
         FSDataInputStream fds = null;
         Configuration con = init();
 
-        System.out.println("ResourcePath = " + ResourcePath);
-
         try {
-            fs = FileSystem.get(new URI(ResourcePath), con, user);
-            fds = fs.open(new Path(ResourcePath));
+            fs = FileSystem.get(new URI(resourcePath), con, user);
+            fds = fs.open(new Path(resourcePath));
         } catch (Exception e) {
-            System.out.println("连接hdfs文件系统失败");
+            log.error("连接hdfs文件系统失败");
             e.printStackTrace();
         }
 

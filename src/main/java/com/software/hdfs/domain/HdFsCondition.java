@@ -18,7 +18,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HdFsCondition {
+public class HdFsCondition extends Object {
 
     /**
      * 文件编号
@@ -45,5 +45,4 @@ public class HdFsCondition {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date date;
-
 }
